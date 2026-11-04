@@ -92,11 +92,14 @@ export default function Projects() {
 
         <Reveal>
           <div className="relative -mx-6 h-[26rem] cursor-grab touch-pan-y active:cursor-grabbing sm:-mx-10 sm:h-[34rem] lg:mx-0 lg:h-[38rem]">
-            <Suspense
-              fallback={<div className="flex h-full items-center justify-center text-xs tracking-[0.4em] text-gold-300/70 uppercase">Loading gallery…</div>}
-            >
-              <Gallery3D onActive={setActive} controlsRef={controls} />
-            </Suspense>
+            <div className="pointer-events-none absolute inset-x-[8%] top-[22%] bottom-[8%] rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(242,169,191,0.16),transparent_68%)] blur-2xl" aria-hidden="true" />
+            <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_78%_82%_at_50%_50%,#000_58%,transparent_100%)]">
+              <Suspense
+                fallback={<div className="flex h-full items-center justify-center text-xs tracking-[0.4em] text-gold-300/70 uppercase">Loading gallery…</div>}
+              >
+                <Gallery3D onActive={setActive} controlsRef={controls} />
+              </Suspense>
+            </div>
 
             <button
               onClick={() => go(-1)}
