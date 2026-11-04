@@ -157,6 +157,9 @@
   box-shadow: 0 0 10px 1px rgb(236 212 160 / 0.7);
   animation: caret-blink 1s steps(1) infinite;
 }
+.caret-solid {
+  animation: none;
+}
 @keyframes caret-blink {
   50% { opacity: 0; }
 }

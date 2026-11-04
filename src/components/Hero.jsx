@@ -26,44 +26,66 @@ function Rotating() {
   )
 }
 
-const segments = [
-  { line: 0, text: 'Fresh Graduate', speed: 55 },
-  { line: 1, text: 'Software Engineer', speed: 62 },
-  { line: 2, text: 'Full-Stack Developer', speed: 45 },
-  { line: 3, text: 'React', speed: 70 },
-  { line: 3, text: 'REST APIs', speed: 55 },
-  { line: 3, text: 'MySQL', speed: 70 },
-  { line: 3, text: 'UI/UX', speed: 80 },
-]
+/** Timings for the headline (milliseconds). Tweak these to make the writing faster, slower or longer-lived. */
+const TYPING = {
+  start: 700, // before the very first letter
+  hold: 3000, // how long the finished headline stays on screen
+  restart: 350, // pause after it has been wiped, before writing again
+  jitter: 20, // random wobble per letter, so it feels hand-written
+  eraseStep: 2, // letters removed per tick while wiping
+  eraseTick: 16,
+  lineGap: 200, // pause when a new line begins
+  wordGap: 110, // pause between the skills on the last line
+}
 
-/** Types the segments out one after another; returns how many characters of each are visible and where the caret is. */
+const segments = [
+  { line: 0, text: 'Fresh Graduate', speed: 30 },
+  { line: 1, text: 'Software Engineer', speed: 34 },
+  { line: 2, text: 'Full-Stack Developer', speed: 26 },
+  { line: 3, text: 'React', speed: 38 },
+  { line: 3, text: 'REST APIs', speed: 32 },
+  { line: 3, text: 'MySQL', speed: 38 },
+  { line: 3, text: 'UI/UX', speed: 40 },
+]
+const offsets = segments.map((_, i) => segments.slice(0, i).reduce((n, s) => n + s.text.length, 0))
+const total = segments.reduce((n, s) => n + s.text.length, 0)
+
+/** Writes the headline letter by letter, holds it, wipes it and starts over. `n` is how many letters are on screen. */
 function useTypewriter() {
   const reduce = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  const [pos, setPos] = useState(reduce ? { s: segments.length, c: 0 } : { s: 0, c: 0 })
+  const [n, setN] = useState(reduce ? total : 0)
+  const [mode, setMode] = useState('type')
 
   useEffect(() => {
-    if (pos.s >= segments.length) return
-    const seg = segments[pos.s]
-    const first = pos.s === 0 && pos.c === 0
+    if (reduce) return
     let wait
-    let next
-    if (pos.c < seg.text.length) {
-      wait = first ? 900 : seg.speed + Math.random() * 30
-      next = { s: pos.s, c: pos.c + 1 }
+    let run
+    if (mode === 'type') {
+      if (n < total) {
+        const i = offsets.findIndex((o, k) => n >= o && n < o + segments[k].text.length)
+        const startsSegment = n === offsets[i]
+        const sameLine = i > 0 && segments[i - 1].line === segments[i].line
+        wait = n === 0 ? TYPING.start : segments[i].speed + Math.random() * TYPING.jitter
+        if (startsSegment && n > 0) wait += sameLine ? TYPING.wordGap : TYPING.lineGap
+        run = () => setN(n + 1)
+      } else {
+        wait = TYPING.hold
+        run = () => setMode('erase')
+      }
+    } else if (n > 0) {
+      wait = TYPING.eraseTick
+      run = () => setN(Math.max(0, n - TYPING.eraseStep))
     } else {
-      const sameLine = segments[pos.s + 1]?.line === seg.line
-      wait = sameLine ? 220 : 420
-      next = { s: pos.s + 1, c: 0 }
+      wait = TYPING.restart
+      run = () => setMode('type')
     }
-    const t = setTimeout(() => setPos(next), wait)
+    const t = setTimeout(run, wait)
     return () => clearTimeout(t)
-  }, [pos])
+  }, [n, mode, reduce])
 
-  const done = pos.s >= segments.length
-  const visible = (i) => (done || i < pos.s ? segments[i].text.length : i === pos.s ? pos.c : 0)
-  // the caret rests on the segment being typed, or on the last one once everything is written
-  const caretAt = done ? segments.length - 1 : pos.s
-  return { visible, caretAt, started: (i) => done || i < pos.s || (i === pos.s && pos.c > 0) }
+  const visible = (i) => Math.min(segments[i].text.length, Math.max(0, n - offsets[i]))
+  const caretAt = Math.max(0, offsets.findLastIndex((o) => n > o))
+  return { visible, caretAt, typing: mode === 'type' && n < total, started: (i) => n > offsets[i] }
 }
 
 /** A word that reserves its final width, so typing never shifts the layout. */
@@ -74,7 +96,7 @@ function Typed({ index, tw, className = '' }) {
       <span className="invisible col-start-1 row-start-1">{seg.text}</span>
       <span className="col-start-1 row-start-1 whitespace-nowrap">
         {seg.text.slice(0, tw.visible(index))}
-        {tw.caretAt === index && <span className="caret" />}
+        {tw.caretAt === index && <span className={`caret ${tw.typing ? "caret-solid" : ""}`} />}
       </span>
     </span>
   )
