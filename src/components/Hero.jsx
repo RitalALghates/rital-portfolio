@@ -28,71 +28,80 @@ function Rotating() {
 
 const stack = ['React', 'REST APIs', 'MySQL', 'UI/UX']
 
-/** The headline as a polished plaque: a spotlight follows the pointer and the card leans towards it. */
-function Plaque() {
+/** The headline as open editorial type: no box, just layered type that drifts at different depths with the pointer. */
+function Headline() {
   const ref = useRef(null)
 
   const onMove = (e) => {
     const el = ref.current
     if (!el || e.pointerType === 'touch') return
     const r = el.getBoundingClientRect()
-    const x = e.clientX - r.left
-    const y = e.clientY - r.top
-    el.style.setProperty('--mx', `${x}px`)
-    el.style.setProperty('--my', `${y}px`)
-    const rx = (0.5 - y / r.height) * 7
-    const ry = (x / r.width - 0.5) * 9
-    el.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`
+    el.style.setProperty('--px', ((e.clientX - r.left) / r.width - 0.5).toFixed(3))
+    el.style.setProperty('--py', ((e.clientY - r.top) / r.height - 0.5).toFixed(3))
   }
   const onLeave = () => {
-    if (ref.current) ref.current.style.transform = ''
+    ref.current?.style.setProperty('--px', '0')
+    ref.current?.style.setProperty('--py', '0')
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 28 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1.1, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="mt-9 max-w-2xl"
-    >
-      <div ref={ref} className="plaque" onPointerMove={onMove} onPointerLeave={onLeave}>
-        <h2 className="sr-only">Fresh Graduate Software Engineer | Full-Stack Developer | React · REST APIs · MySQL · UI/UX</h2>
+    <div ref={ref} className="headline mt-9" onPointerMove={onMove} onPointerLeave={onLeave}>
+      <h2 className="sr-only">Fresh Graduate Software Engineer | Full-Stack Developer | React · REST APIs · MySQL · UI/UX</h2>
 
-        <div aria-hidden="true">
-          <div className="flex items-center gap-4">
-            <span className="eyebrow !tracking-[0.5em]">Fresh Graduate</span>
-            <motion.span
-              className="rule flex-1"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 1.2, delay: 1.1, ease: 'easeOut' }}
-            />
-          </div>
+      <motion.span
+        className="headline-bar"
+        aria-hidden="true"
+        initial={{ scaleY: 0 }}
+        animate={{ scaleY: 1 }}
+        transition={{ duration: 1.3, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      />
 
-          <p className="font-display-italic gold-text mt-3 text-[clamp(2.4rem,5.4vw,3.8rem)] leading-[1.02]">Software Engineer</p>
-
-          <p className="font-display mt-2 flex items-center gap-3 text-2xl tracking-wide text-ivory/90 sm:text-3xl">
-            <span className="text-gold-400">|</span>
-            Full-Stack Developer
+      <div aria-hidden="true">
+        <motion.div
+          className="layer layer-1"
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.9, delay: 0.8 }}
+        >
+          <p className="eyebrow flex items-center gap-3 !tracking-[0.5em]">
+            <span className="tech-dot" />
+            Fresh Graduate
           </p>
+        </motion.div>
 
-          <div className="mt-6 flex flex-wrap gap-2.5">
-            {stack.map((s, i) => (
-              <motion.a
-                key={s}
-                href="#skills"
-                className="chip"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 1.0 + i * 0.1 }}
-              >
-                {s}
-              </motion.a>
-            ))}
-          </div>
-        </div>
+        <motion.div
+          className="layer layer-3"
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.1, delay: 0.95, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <p className="font-display-italic gold-shine mt-2 pb-1 text-[clamp(2.7rem,6.2vw,4.9rem)] leading-[1.02]">Software Engineer</p>
+        </motion.div>
+
+        <motion.div
+          className="layer layer-2"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 1.15, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <p className="font-display mt-1 text-2xl tracking-wide text-ivory/90 sm:text-[2rem]">Full-Stack Developer</p>
+        </motion.div>
+
+        <motion.div
+          className="layer layer-1 mt-6 flex flex-wrap items-center gap-x-4 gap-y-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1.35 }}
+        >
+          {stack.map((s, i) => (
+            <span key={s} className="flex items-center gap-4">
+              {i > 0 && <span className="tech-dot" />}
+              <a href="#skills" className="tech">{s}</a>
+            </span>
+          ))}
+        </motion.div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -120,7 +129,7 @@ export default function Hero() {
           <span className="font-display-italic gold-text">Alghates</span>
         </motion.h1>
 
-        <Plaque />
+        <Headline />
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
