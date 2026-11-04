@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { profile } from '../data'
 import { ArrowIcon } from './ui'
@@ -26,6 +26,76 @@ function Rotating() {
   )
 }
 
+const stack = ['React', 'REST APIs', 'MySQL', 'UI/UX']
+
+/** The headline as a polished plaque: a spotlight follows the pointer and the card leans towards it. */
+function Plaque() {
+  const ref = useRef(null)
+
+  const onMove = (e) => {
+    const el = ref.current
+    if (!el || e.pointerType === 'touch') return
+    const r = el.getBoundingClientRect()
+    const x = e.clientX - r.left
+    const y = e.clientY - r.top
+    el.style.setProperty('--mx', `${x}px`)
+    el.style.setProperty('--my', `${y}px`)
+    const rx = (0.5 - y / r.height) * 7
+    const ry = (x / r.width - 0.5) * 9
+    el.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`
+  }
+  const onLeave = () => {
+    if (ref.current) ref.current.style.transform = ''
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1.1, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className="mt-9 max-w-2xl"
+    >
+      <div ref={ref} className="plaque" onPointerMove={onMove} onPointerLeave={onLeave}>
+        <h2 className="sr-only">Fresh Graduate Software Engineer | Full-Stack Developer | React · REST APIs · MySQL · UI/UX</h2>
+
+        <div aria-hidden="true">
+          <div className="flex items-center gap-4">
+            <span className="eyebrow !tracking-[0.5em]">Fresh Graduate</span>
+            <motion.span
+              className="rule flex-1"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 1.2, delay: 1.1, ease: 'easeOut' }}
+            />
+          </div>
+
+          <p className="font-display-italic gold-text mt-3 text-[clamp(2.4rem,5.4vw,3.8rem)] leading-[1.02]">Software Engineer</p>
+
+          <p className="font-display mt-2 flex items-center gap-3 text-2xl tracking-wide text-ivory/90 sm:text-3xl">
+            <span className="text-gold-400">|</span>
+            Full-Stack Developer
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-2.5">
+            {stack.map((s, i) => (
+              <motion.a
+                key={s}
+                href="#skills"
+                className="chip"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.0 + i * 0.1 }}
+              >
+                {s}
+              </motion.a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function Hero() {
   return (
     <section id="top" className="relative flex min-h-screen items-center px-6 pt-28 pb-20 sm:px-10">
@@ -50,28 +120,21 @@ export default function Hero() {
           <span className="font-display-italic gold-text">Alghates</span>
         </motion.h1>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.7 }}
-          className="font-display-italic mt-5 text-2xl text-blush-200/80 sm:text-3xl"
-        >
-          Fresh Graduate Software Engineer
-        </motion.p>
+        <Plaque />
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.85 }}
+          transition={{ duration: 1, delay: 1.35 }}
           className="mt-8 max-w-xl text-lg leading-relaxed font-light text-ivory/80 sm:text-xl"
         >
-          Software engineer &amp; UI/UX designer crafting <Rotating />, with a love for detail.
+          Crafting <Rotating />, with a love for detail.
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.05 }}
+          transition={{ duration: 1, delay: 1.55 }}
           className="mt-10 flex flex-wrap gap-4"
         >
           <a href="#work" className="btn btn-gold">
