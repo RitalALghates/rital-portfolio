@@ -5,7 +5,7 @@ export const profile = {
   role: 'Software Engineer · Full-Stack Developer · UI/UX Designer',
   location: 'Jeddah, Saudi Arabia',
   github: GH,
-  linkedin: 'https://www.linkedin.com/in/rital-al-ghates-8212b7317/',
+  linkedin: 'https://www.linkedin.com/in/rital-alghates/',
   summary:
     'Software Engineering graduate (First Class Honors) from the University of Jeddah. I design and build thoughtful, bilingual digital products — from polished web apps to Android apps and 3D games.',
 }
