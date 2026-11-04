@@ -54,9 +54,9 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.7 }}
-          className="font-display mt-5 text-3xl text-blush-200/80 sm:text-4xl"
+          className="font-display-italic mt-5 text-2xl text-blush-200/80 sm:text-3xl"
         >
-          <span dir="rtl" lang="ar" className="inline-block">{profile.arabicName}</span>
+          Fresh Graduate Software Engineer
         </motion.p>
 
         <motion.p

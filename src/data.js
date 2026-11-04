@@ -2,7 +2,6 @@ const GH = 'https://github.com/RitalALghates'
 
 export const profile = {
   name: 'Rital Alghates',
-  arabicName: 'ريتال الغيهات',
   role: 'Software Engineer · Full-Stack Developer · UI/UX Designer',
   location: 'Jeddah, Saudi Arabia',
   github: GH,
@@ -15,7 +14,7 @@ export const projects = [
   {
     id: 'urbanflow',
     title: 'UrbanFlow',
-    subtitle: 'أوربان فلو',
+    subtitle: 'Smarter cities, simulated.',
     kind: 'Web simulator',
     image: './projects/urbanflow.png',
     description:
@@ -41,7 +40,7 @@ export const projects = [
   {
     id: 'events-platform',
     title: 'Events Platform',
-    subtitle: 'منصة الفعاليات',
+    subtitle: 'Culture and entertainment, one place.',
     kind: 'Bilingual website',
     image: './projects/events-website.png',
     description:
@@ -54,7 +53,7 @@ export const projects = [
   {
     id: 'eventbook',
     title: 'EventBook',
-    subtitle: 'منصة الفعاليات · RTL',
+    subtitle: 'Find it. Book it.',
     kind: 'Responsive web app',
     image: './projects/events-platform.png',
     description:
