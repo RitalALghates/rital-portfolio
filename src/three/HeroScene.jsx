@@ -224,7 +224,7 @@ export default function HeroScene() {
         <fog attach="fog" args={['#14070f', 9, 20]} />
         <Lights />
         <Rig>
-          <group position={[small ? 0 : 2.9, small ? 1.4 : 0.1, 0]} scale={small ? 0.75 : 1}>
+          <group position={[small ? 1.05 : 2.9, small ? 1.95 : 0.1, small ? -1.6 : 0]} scale={small ? 0.5 : 1}>
             <Pearl />
             <Rings />
             <OrbitPearls count={small ? 24 : 46} />
