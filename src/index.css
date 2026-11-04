@@ -112,10 +112,8 @@
   }
 }
 
-/* hero headline: open editorial type with layered pointer parallax */
+/* hero headline: open editorial type that writes itself */
 .headline {
-  --px: 0;
-  --py: 0;
   position: relative;
   max-width: 44rem;
   padding-left: 1.75rem;
@@ -148,13 +146,20 @@
   85% { opacity: 1; }
   100% { top: calc(100% - 6px); opacity: 0; }
 }
-.layer {
-  transition: transform 0.35s ease-out;
-  will-change: transform;
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 0.85em;
+  margin-left: 3px;
+  vertical-align: -0.08em;
+  border-radius: 1px;
+  background: var(--color-gold-300);
+  box-shadow: 0 0 10px 1px rgb(236 212 160 / 0.7);
+  animation: caret-blink 1s steps(1) infinite;
 }
-.layer-1 { transform: translate3d(calc(var(--px) * 6px), calc(var(--py) * 4px), 0); }
-.layer-2 { transform: translate3d(calc(var(--px) * 14px), calc(var(--py) * 8px), 0); }
-.layer-3 { transform: translate3d(calc(var(--px) * 22px), calc(var(--py) * 12px), 0); }
+@keyframes caret-blink {
+  50% { opacity: 0; }
+}
 .gold-shine {
   background: linear-gradient(100deg, #dcb872 0%, #f3e2bd 22%, #f9cfdb 38%, #fff6e8 50%, #f2a9bf 62%, #dcb872 80%, #ecd4a0 100%);
   background-size: 260% 100%;
@@ -235,7 +240,8 @@
   }
   .ring,
   .headline-bar::after,
-  .gold-shine {
+  .gold-shine,
+  .caret {
     animation: none;
   }
   * {

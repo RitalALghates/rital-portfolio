@@ -26,26 +26,66 @@ function Rotating() {
   )
 }
 
-const stack = ['React', 'REST APIs', 'MySQL', 'UI/UX']
+const segments = [
+  { line: 0, text: 'Fresh Graduate', speed: 55 },
+  { line: 1, text: 'Software Engineer', speed: 62 },
+  { line: 2, text: 'Full-Stack Developer', speed: 45 },
+  { line: 3, text: 'React', speed: 70 },
+  { line: 3, text: 'REST APIs', speed: 55 },
+  { line: 3, text: 'MySQL', speed: 70 },
+  { line: 3, text: 'UI/UX', speed: 80 },
+]
 
-/** The headline as open editorial type: no box, just layered type that drifts at different depths with the pointer. */
+/** Types the segments out one after another; returns how many characters of each are visible and where the caret is. */
+function useTypewriter() {
+  const reduce = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  const [pos, setPos] = useState(reduce ? { s: segments.length, c: 0 } : { s: 0, c: 0 })
+
+  useEffect(() => {
+    if (pos.s >= segments.length) return
+    const seg = segments[pos.s]
+    const first = pos.s === 0 && pos.c === 0
+    let wait
+    let next
+    if (pos.c < seg.text.length) {
+      wait = first ? 900 : seg.speed + Math.random() * 30
+      next = { s: pos.s, c: pos.c + 1 }
+    } else {
+      const sameLine = segments[pos.s + 1]?.line === seg.line
+      wait = sameLine ? 220 : 420
+      next = { s: pos.s + 1, c: 0 }
+    }
+    const t = setTimeout(() => setPos(next), wait)
+    return () => clearTimeout(t)
+  }, [pos])
+
+  const done = pos.s >= segments.length
+  const visible = (i) => (done || i < pos.s ? segments[i].text.length : i === pos.s ? pos.c : 0)
+  // the caret rests on the segment being typed, or on the last one once everything is written
+  const caretAt = done ? segments.length - 1 : pos.s
+  return { visible, caretAt, started: (i) => done || i < pos.s || (i === pos.s && pos.c > 0) }
+}
+
+/** A word that reserves its final width, so typing never shifts the layout. */
+function Typed({ index, tw, className = '' }) {
+  const seg = segments[index]
+  return (
+    <span className={`relative inline-grid ${className}`}>
+      <span className="invisible col-start-1 row-start-1">{seg.text}</span>
+      <span className="col-start-1 row-start-1 whitespace-nowrap">
+        {seg.text.slice(0, tw.visible(index))}
+        {tw.caretAt === index && <span className="caret" />}
+      </span>
+    </span>
+  )
+}
+
+/** The headline writes itself, line by line, in one coordinated gold-and-blush palette. */
 function Headline() {
-  const ref = useRef(null)
-
-  const onMove = (e) => {
-    const el = ref.current
-    if (!el || e.pointerType === 'touch') return
-    const r = el.getBoundingClientRect()
-    el.style.setProperty('--px', ((e.clientX - r.left) / r.width - 0.5).toFixed(3))
-    el.style.setProperty('--py', ((e.clientY - r.top) / r.height - 0.5).toFixed(3))
-  }
-  const onLeave = () => {
-    ref.current?.style.setProperty('--px', '0')
-    ref.current?.style.setProperty('--py', '0')
-  }
+  const tw = useTypewriter()
 
   return (
-    <div ref={ref} className="headline mt-9" onPointerMove={onMove} onPointerLeave={onLeave}>
+    <div className="headline mt-9">
       <h2 className="sr-only">Fresh Graduate Software Engineer | Full-Stack Developer | React · REST APIs · MySQL · UI/UX</h2>
 
       <motion.span
@@ -53,53 +93,36 @@ function Headline() {
         aria-hidden="true"
         initial={{ scaleY: 0 }}
         animate={{ scaleY: 1 }}
-        transition={{ duration: 1.3, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 2.2, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
       />
 
       <div aria-hidden="true">
-        <motion.div
-          className="layer layer-1"
-          initial={{ opacity: 0, x: -16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.9, delay: 0.8 }}
-        >
-          <p className="eyebrow flex items-center gap-3 !tracking-[0.5em]">
-            <span className="tech-dot" />
-            Fresh Graduate
-          </p>
-        </motion.div>
+        <p className="eyebrow flex items-center gap-3 !tracking-[0.5em]">
+          <span className="tech-dot" />
+          <Typed index={0} tw={tw} />
+        </p>
 
-        <motion.div
-          className="layer layer-3"
-          initial={{ opacity: 0, y: 22 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.1, delay: 0.95, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <p className="font-display-italic gold-shine mt-2 pb-1 text-[clamp(2.7rem,6.2vw,4.9rem)] leading-[1.02]">Software Engineer</p>
-        </motion.div>
+        <p className="font-display-italic mt-2 pb-1 text-[clamp(2.7rem,6.2vw,4.9rem)] leading-[1.02]">
+          <Typed index={1} tw={tw} className="gold-shine" />
+        </p>
 
-        <motion.div
-          className="layer layer-2"
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.15, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <p className="font-display mt-1 text-2xl tracking-wide text-ivory/90 sm:text-[2rem]">Full-Stack Developer</p>
-        </motion.div>
+        <p className="font-display mt-1 text-2xl tracking-wide text-blush-200 sm:text-[2rem]">
+          <Typed index={2} tw={tw} />
+        </p>
 
-        <motion.div
-          className="layer layer-1 mt-6 flex flex-wrap items-center gap-x-4 gap-y-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.35 }}
-        >
-          {stack.map((s, i) => (
-            <span key={s} className="flex items-center gap-4">
-              {i > 0 && <span className="tech-dot" />}
-              <a href="#skills" className="tech">{s}</a>
-            </span>
-          ))}
-        </motion.div>
+        <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+          {segments.slice(3).map((seg, k) => {
+            const i = k + 3
+            return (
+              <span key={seg.text} className="flex items-center gap-4">
+                {k > 0 && <span className={`tech-dot transition-opacity duration-500 ${tw.started(i) ? 'opacity-80' : 'opacity-0'}`} />}
+                <a href="#skills" className="tech">
+                  <Typed index={i} tw={tw} />
+                </a>
+              </span>
+            )
+          })}
+        </div>
       </div>
     </div>
   )
