@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Treasure Escape — A small ocean. A grand adventure.</title>
+  <meta name="description" content="Treasure Escape is a single-player 3D adventure for Windows. Sail to an abandoned ship, face the spider guardian and sneak home before the shark finds you." />
+  <meta name="theme-color" content="#06161f" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚓</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --abyss: #04121a;
+      --deep: #06202c;
+      --sea: #0b3a4a;
+      --teal: #2fb4b0;
+      --foam: #d9f4ef;
+      --gold: #e9c46a;
+      --gold-soft: #f4dca0;
+      --coral: #ff7a6b;
+      --ink: #eaf6f4;
+      --muted: rgba(234, 246, 244, 0.68);
+      --line: rgba(234, 246, 244, 0.14);
+      --glass: rgba(8, 36, 48, 0.62);
+      --display: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      background: var(--abyss);
+      color: var(--ink);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    .wrap { width: min(1120px, 100% - 3rem); margin-inline: auto; }
+    .eyebrow { font-size: 0.72rem; letter-spacing: 0.32em; text-transform: uppercase; color: var(--gold); }
+    h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.05; }
+    h2 { font-size: clamp(2.2rem, 5vw, 3.6rem); }
+    .italic { font-style: italic; color: var(--gold-soft); }
+
+    /* ---------- nav ---------- */
+    nav {
+      position: fixed; inset: 0 0 auto 0; z-index: 50;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem clamp(1rem, 4vw, 2.5rem);
+      transition: background .4s, backdrop-filter .4s;
+    }
+    nav.solid { background: rgba(4, 18, 26, 0.78); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+    nav .brand { font-family: var(--display); font-size: 1.4rem; font-weight: 600; letter-spacing: .02em; }
+    nav .brand span { color: var(--gold); }
+    nav .links { display: flex; gap: 1.6rem; align-items: center; }
+    nav .links a { font-size: .74rem; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); transition: color .25s; }
+    nav .links a:hover { color: var(--gold-soft); }
+    @media (max-width: 760px) { nav .links a:not(.btn) { display: none; } }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: .6rem;
+      padding: .9rem 1.6rem; border-radius: 999px; border: 1px solid transparent;
+      font: 500 .78rem/1 var(--sans); letter-spacing: .2em; text-transform: uppercase;
+      cursor: pointer; transition: transform .25s, box-shadow .25s, background .25s, color .25s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-gold { background: linear-gradient(135deg, var(--gold-soft), var(--gold)); color: #1b1404; box-shadow: 0 10px 30px -10px rgba(233, 196, 106, .6); }
+    .btn-gold:hover { box-shadow: 0 16px 38px -10px rgba(233, 196, 106, .85); color: #1b1404; }
+    .btn-ghost { border-color: var(--line); color: var(--ink); background: rgba(255,255,255,.04); }
+    .btn-ghost:hover { border-color: var(--gold); color: var(--gold-soft); }
+    nav .btn { padding: .65rem 1.2rem; font-size: .7rem; }
+
+    /* ---------- hero ---------- */
+    .hero { position: relative; min-height: 100svh; display: grid; place-items: center; text-align: center; overflow: hidden; isolation: isolate; }
+    .hero-bg {
+      position: absolute; inset: -6%; z-index: -3;
+      background: url('img/02_Explore_The_Ship.png') center / cover no-repeat;
+      transform: translate3d(0, 0, 0) scale(1.08);
+      will-change: transform; filter: saturate(1.05);
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0; z-index: -2;
+      background:
+        radial-gradient(ellipse at 50% 38%, rgba(4,18,26,.25), rgba(4,18,26,.85) 70%),
+        linear-gradient(180deg, rgba(4,18,26,.55), rgba(4,18,26,.2) 40%, var(--abyss) 100%);
+    }
+    .hero-inner { padding: 7rem 0 9rem; }
+    .hero h1 { font-size: clamp(3.4rem, 11vw, 8.2rem); margin: 1.2rem 0 .4rem; text-shadow: 0 6px 50px rgba(0,0,0,.55); }
+    .hero h1 em { display: block; font-weight: 500; color: var(--gold-soft); }
+    .hero p.lead { max-width: 36rem; margin: 1.2rem auto 0; font-size: clamp(1.05rem, 2vw, 1.3rem); font-weight: 300; color: rgba(234,246,244,.86); }
+    .hero .cta { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-top: 2.4rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; margin-top: 2.2rem; }
+    .chip { padding: .45rem .95rem; border-radius: 999px; border: 1px solid var(--line); background: rgba(6, 32, 44, .55); backdrop-filter: blur(8px); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+    .waves { position: absolute; left: 0; right: 0; bottom: -1px; height: 120px; z-index: -1; pointer-events: none; }
+    .waves svg { position: absolute; bottom: 0; width: 200%; height: 100%; }
+    .waves .w1 { animation: drift 18s linear infinite; opacity: .5; }
+    .waves .w2 { animation: drift 28s linear infinite reverse; opacity: .8; }
+    .waves .w3 { animation: drift 38s linear infinite; }
+    @keyframes drift { to { transform: translateX(-50%); } }
+    .scroll-hint { position: absolute; bottom: 7.5rem; left: 50%; translate: -50% 0; width: 1px; height: 54px; background: var(--line); overflow: hidden; }
+    .scroll-hint::after { content: ''; position: absolute; inset: 0 0 auto 0; height: 18px; background: var(--gold); animation: drop 2s ease-in-out infinite; }
+    @keyframes drop { from { transform: translateY(-100%); } to { transform: translateY(300%); } }
+
+    section { padding: clamp(4.5rem, 10vw, 8rem) 0; position: relative; }
+    .head { text-align: center; max-width: 40rem; margin: 0 auto 3.5rem; }
+    .head p { color: var(--muted); margin-top: 1rem; font-weight: 300; font-size: 1.08rem; }
+
+    /* reveal */
+    .rv { opacity: 0; transform: translateY(26px); transition: opacity .9s ease, transform .9s cubic-bezier(.22,1,.36,1); }
+    .rv.in { opacity: 1; transform: none; }
+
+    /* ---------- expedition ---------- */
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.4rem; counter-reset: s; }
+    .step {
+      position: relative; padding: 2rem 1.7rem 2rem; border-radius: 22px;
+      background: linear-gradient(160deg, rgba(11,58,74,.7), rgba(6,32,44,.7));
+      border: 1px solid var(--line); overflow: hidden;
+      transition: transform .35s, border-color .35s;
+    }
+    .step:hover { transform: translateY(-6px); border-color: rgba(233,196,106,.5); }
+    .step::before { counter-increment: s; content: '0' counter(s); position: absolute; right: 1.2rem; top: .4rem; font: 600 5rem/1 var(--display); color: rgba(233,196,106,.12); }
+    .step .ico { width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; background: rgba(233,196,106,.12); color: var(--gold); margin-bottom: 1.3rem; }
+    .step h3 { font-size: 1.7rem; margin-bottom: .5rem; }
+    .step p { color: var(--muted); font-weight: 300; }
+    .hearts { display: flex; gap: .4rem; justify-content: center; margin-top: 2.6rem; color: var(--coral); }
+    .hearts small { margin-left: .8rem; align-self: center; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; font-size: .72rem; }
+
+    /* ---------- sneak game ---------- */
+    .arena { background: linear-gradient(180deg, #0a3446, #06202c); border: 1px solid var(--line); border-radius: 26px; padding: clamp(1rem, 3vw, 2rem); box-shadow: 0 30px 80px -30px rgba(0,0,0,.7); }
+    .sea { position: relative; height: 210px; border-radius: 18px; overflow: hidden; background: linear-gradient(180deg, #7fd3e3 0%, #2d8fa8 34%, #0b4a62 35%, #06202c 100%); }
+    .sea .sun { position: absolute; top: 18px; right: 12%; width: 46px; height: 46px; border-radius: 50%; background: #fff3c4; box-shadow: 0 0 40px 12px rgba(255, 243, 196, .55); }
+    .sea .swell { position: absolute; left: 0; right: 0; top: calc(34% - 8px); height: 18px; opacity: .6; background: radial-gradient(circle at 50% 100%, transparent 9px, rgba(255,255,255,.45) 10px, rgba(255,255,255,.45) 12px, transparent 13px) 0 0 / 36px 18px repeat-x; animation: shimmer 4s linear infinite; }
+    @keyframes shimmer { to { background-position: -36px 0; } }
+    .sea .island { position: absolute; right: 1.5%; bottom: 40px; width: 90px; height: 54px; }
+    .sea .ship { position: absolute; left: 1.5%; bottom: 44px; width: 70px; height: 56px; opacity: .9; }
+    .boat { position: absolute; bottom: 38px; left: 0; width: 56px; transition: transform .1s; will-change: left; }
+    .shark { position: absolute; bottom: 30px; left: 0; width: 66px; will-change: left; }
+    .boat.rock { animation: rock 1.4s ease-in-out infinite; }
+    @keyframes rock { 50% { transform: translateY(-3px) rotate(2deg); } }
+    .splash { position: absolute; bottom: 36px; width: 80px; height: 20px; border-radius: 50%; border: 2px solid rgba(255,255,255,.55); opacity: 0; }
+    .splash.on { animation: ring .6s ease-out infinite; }
+    @keyframes ring { from { opacity: .8; transform: scale(.4); } to { opacity: 0; transform: scale(1.5); } }
+    .hud { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.2rem; margin-top: 1.4rem; align-items: center; }
+    .meter label { display: flex; justify-content: space-between; font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: .45rem; }
+    .bar { height: 10px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
+    .bar i { display: block; height: 100%; width: 0; border-radius: 99px; transition: width .12s linear; }
+    .bar.noise i { background: linear-gradient(90deg, var(--teal), var(--gold), var(--coral)); }
+    .bar.prog i { background: linear-gradient(90deg, var(--gold), var(--gold-soft)); }
+    .bar.danger i { background: linear-gradient(90deg, #ffb3a8, var(--coral)); }
+    .play-row { display: flex; gap: .8rem; flex-wrap: wrap; align-items: center; margin-top: 1.4rem; }
+    .hold { flex: 1 1 220px; padding: 1.1rem; border-radius: 16px; border: 1px dashed rgba(233,196,106,.55); background: rgba(233,196,106,.07); color: var(--gold-soft); font: 500 .8rem var(--sans); letter-spacing: .18em; text-transform: uppercase; cursor: pointer; user-select: none; touch-action: none; }
+    .hold.active { background: rgba(255,122,107,.2); border-color: var(--coral); color: #ffd7d1; }
+    .toast { min-height: 1.6rem; text-align: center; margin-top: 1rem; font-family: var(--display); font-size: 1.5rem; color: var(--gold-soft); }
+    .tip { color: var(--muted); font-size: .86rem; text-align: center; margin-top: .6rem; font-weight: 300; }
+
+    /* ---------- controls ---------- */
+    .keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; }
+    .key { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.1rem; border-radius: 16px; border: 1px solid var(--line); background: rgba(8, 36, 48, .55); transition: border-color .2s, background .2s, transform .2s; }
+    .key.hit { border-color: var(--gold); background: rgba(233,196,106,.14); transform: translateY(-3px); }
+    .cap { min-width: 54px; padding: .55rem .7rem; text-align: center; border-radius: 10px; font: 600 .82rem var(--sans); letter-spacing: .08em; color: var(--gold-soft); background: linear-gradient(180deg, #123d4d, #0a2a38); border: 1px solid rgba(233,196,106,.35); box-shadow: 0 4px 0 rgba(0,0,0,.45); }
+    .key.hit .cap { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.45); }
+    .key span { font-size: .95rem; color: var(--muted); font-weight: 300; }
+    .keys-note { text-align: center; color: var(--muted); font-size: .86rem; margin-top: 1.4rem; font-weight: 300; }
+
+    /* ---------- gallery ---------- */
+    .stage { position: relative; border-radius: 26px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 40px 90px -40px rgba(0,0,0,.8); aspect-ratio: 16 / 9; background: #000; }
+    .stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.04); transition: opacity .7s, transform 1.4s; }
+    .stage img.on { opacity: 1; transform: none; }
+    .stage .cap-bar { position: absolute; inset: auto 0 0 0; padding: 2.4rem 1.6rem 1.3rem; background: linear-gradient(0deg, rgba(4,18,26,.92), transparent); }
+    .stage .cap-bar b { font-family: var(--display); font-size: 1.7rem; display: block; }
+    .stage .cap-bar span { color: var(--muted); font-weight: 300; }
+    .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8rem; margin-top: 1rem; }
+    .thumbs button { all: unset; cursor: pointer; border-radius: 12px; overflow: hidden; border: 2px solid transparent; aspect-ratio: 16/9; opacity: .55; transition: opacity .3s, border-color .3s, transform .3s; }
+    .thumbs button img { width: 100%; height: 100%; object-fit: cover; }
+    .thumbs button:hover { opacity: .9; transform: translateY(-3px); }
+    .thumbs button[aria-selected='true'] { opacity: 1; border-color: var(--gold); }
+
+    /* ---------- tech ---------- */
+    .tech { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; }
+    .tcard { padding: 1.8rem; border-radius: 20px; border: 1px solid var(--line); background: rgba(8,36,48,.5); transition: transform .3s, border-color .3s; }
+    .tcard:hover { transform: translateY(-5px); border-color: rgba(47,180,176,.6); }
+    .tcard small { color: var(--teal); letter-spacing: .24em; text-transform: uppercase; font-size: .68rem; }
+    .tcard h3 { font-size: 2rem; margin: .4rem 0 .6rem; }
+    .tcard p { color: var(--muted); font-weight: 300; }
+
+    /* ---------- download ---------- */
+    .dl { text-align: center; border-radius: 30px; padding: clamp(2.4rem, 6vw, 4.5rem) clamp(1.4rem, 4vw, 3rem); background: radial-gradient(ellipse at 50% 0%, rgba(47,180,176,.25), transparent 60%), linear-gradient(160deg, #0b3a4a, #06202c); border: 1px solid rgba(233,196,106,.3); }
+    .dl ol { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; list-style: none; margin: 2.2rem 0; text-align: left; counter-reset: d; }
+    .dl li { counter-increment: d; padding: 1.1rem 1.1rem 1.1rem 3.2rem; position: relative; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid var(--line); font-weight: 300; color: var(--muted); }
+    .dl li::before { content: counter(d); position: absolute; left: 1rem; top: 1rem; width: 1.7rem; height: 1.7rem; display: grid; place-items: center; border-radius: 50%; background: var(--gold); color: #1b1404; font-weight: 600; font-size: .85rem; }
+    .dl li b { color: var(--ink); font-weight: 500; }
+    .fine { color: var(--muted); font-size: .84rem; margin-top: 1.2rem; font-weight: 300; }
+
+    footer { padding: 2.6rem 0 3.4rem; border-top: 1px solid var(--line); text-align: center; color: var(--muted); font-size: .88rem; font-weight: 300; }
+    footer a { color: var(--gold-soft); border-bottom: 1px solid rgba(233,196,106,.4); }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+      .rv { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="nav">
+    <a class="brand" href="#top">Treasure <span>Escape</span></a>
+    <div class="links">
+      <a href="#expedition">Expedition</a>
+      <a href="#sneak">Try it</a>
+      <a href="#controls">Controls</a>
+      <a href="#gallery">Gallery</a>
+      <a class="btn btn-gold" href="#download">Download</a>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="hero-bg" id="heroBg" role="img" aria-label="The player boarding the abandoned ship"></div>
+    <div class="wrap hero-inner">
+      <p class="eyebrow">Single-player · 3D adventure</p>
+      <h1>Treasure <em>Escape</em></h1>
+      <p class="lead">A small ocean. A grand adventure. Sail to a mysterious ship, face the spider guardian and bring the treasure home — before the shark hears you.</p>
+      <div class="cta">
+        <a class="btn btn-gold" href="https://github.com/RitalALghates/TreasureEscape-Windows-Game/releases/latest/download/TreasureEscape_Windows.zip">Download for Windows</a>
+        <a class="btn btn-ghost" href="#sneak">Try the shark challenge</a>
+      </div>
+      <div class="chips">
+        <span class="chip">Windows 64-bit</span>
+        <span class="chip">Unity · C#</span>
+        <span class="chip">Blender models</span>
+        <span class="chip">~82 MB</span>
+      </div>
+    </div>
+    <div class="scroll-hint" aria-hidden="true"></div>
+    <div class="waves" aria-hidden="true">
+      <svg class="w1" viewBox="0 0 2400 120" preserveAspectRatio="none"><path fill="#0b3a4a" d="M0 60 C 150 20 300 100 450 60 S 750 20 900 60 S 1200 100 1200 60 C 1350 20 1500 100 1650 60 S 1950 20 2100 60 S 2400 100 2400 60 V120 H0Z"/></svg>
+      <svg class="w2" viewBox="0 0 2400 120" preserveAspectRatio="none"><path fill="#082a39" d="M0 70 C 200 30 400 110 600 70 S 1000 30 1200 70 C 1400 30 1600 110 1800 70 S 2200 30 2400 70 V120 H0Z"/></svg>
+      <svg class="w3" viewBox="0 0 2400 120" preserveAspectRatio="none"><path fill="#04121a" d="M0 90 C 150 60 300 120 450 90 S 750 60 900 90 S 1200 120 1200 90 C 1350 60 1500 120 1650 90 S 1950 60 2100 90 S 2400 120 2400 90 V120 H0Z"/></svg>
+    </div>
+  </header>
+
+  <main>
+    <!-- EXPEDITION -->
+    <section id="expedition">
+      <div class="wrap">
+        <div class="head rv">
+          <p class="eyebrow">Your expedition</p>
+          <h2>Three tasks. <span class="italic">One shot at home.</span></h2>
+          <p>You begin with three hearts. Every decision — how fast you sail, how loud you are — decides whether you make it back.</p>
+        </div>
+        <div class="steps">
+          <article class="step rv">
+            <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v14"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/><circle cx="12" cy="5" r="2"/></svg></div>
+            <h3>Collect the treasure</h3>
+            <p>Sail to the abandoned ship, climb aboard and recover the jewels hidden below deck.</p>
+          </article>
+          <article class="step rv">
+            <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="m16 16 4 4"/><path d="m19 21 2-2"/></svg></div>
+            <h3>Defeat the guardian</h3>
+            <p>Listen for the spider’s warning, return upstairs and land three successful hits.</p>
+          </article>
+          <article class="step rv">
+            <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20c2-1 4-1 6 0s4 1 6 0 4-1 6 0"/><path d="M5 16 3 9l9-3 9 3-2 7"/><path d="M12 6V2"/></svg></div>
+            <h3>Escape safely</h3>
+            <p>Return to your boat, follow the escape route and reach the island with at least one heart left.</p>
+          </article>
+        </div>
+        <div class="hearts rv" aria-label="Three hearts">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-8-5.4-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.6-8 11-8 11Z"/></svg>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-8-5.4-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.6-8 11-8 11Z"/></svg>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-8-5.4-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.6-8 11-8 11Z"/></svg>
+          <small>Three hearts. No saves.</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- SNEAK GAME -->
+    <section id="sneak" style="background: linear-gradient(180deg, transparent, rgba(11,58,74,.25), transparent)">
+      <div class="wrap">
+        <div class="head rv">
+          <p class="eyebrow">Play a taste</p>
+          <h2>Sneak past <span class="italic">the shark</span></h2>
+          <p>The louder you are, the closer the shark gets. Hold the button to boost — release to glide quietly. Reach the island first.</p>
+        </div>
+        <div class="arena rv">
+          <div class="sea" id="sea">
+            <div class="sun"></div>
+            <div class="swell"></div>
+            <svg class="ship" viewBox="0 0 70 56" aria-hidden="true"><path d="M5 38h60l-8 14H14z" fill="#6b4a2b"/><path d="M35 4v34" stroke="#3b2814" stroke-width="3"/><path d="M35 8l22 22H35z" fill="#e9dcc0"/><path d="M35 14 16 32h19z" fill="#cdbf9f"/></svg>
+            <svg class="island" viewBox="0 0 90 54" aria-hidden="true"><path d="M0 54c10-24 26-32 45-32s35 8 45 32z" fill="#d9b66b"/><path d="M45 24c0-10 4-16 8-20M45 24c-3-8-10-12-16-12M45 24c8-4 16-3 20 2" stroke="#2f7d4a" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+            <div class="splash" id="splash"></div>
+            <svg class="shark" id="shark" viewBox="0 0 66 40" aria-hidden="true"><path d="M2 30c14-4 22-12 34-24 2 6 4 10 6 13 8 1 16 5 24 11-10 2-18 0-26 0-12 0-24 4-38 0Z" fill="#5d7684"/><path d="M36 6c1 6 3 9 6 13" stroke="#3c5260" stroke-width="2" fill="none"/><circle cx="52" cy="24" r="1.6" fill="#10212a"/></svg>
+            <svg class="boat rock" id="boat" viewBox="0 0 56 44" aria-hidden="true"><path d="M2 26h52l-8 14H10z" fill="#c9733a"/><path d="M28 4v22" stroke="#4a2c14" stroke-width="3"/><path d="M28 6l16 16H28z" fill="#fff3d6"/></svg>
+          </div>
+          <div class="hud">
+            <div class="meter"><label><span>Noise</span><b id="noiseV">0%</b></label><div class="bar noise"><i id="noiseBar"></i></div></div>
+            <div class="meter"><label><span>Journey home</span><b id="progV">0%</b></label><div class="bar prog"><i id="progBar"></i></div></div>
+            <div class="meter"><label><span>Shark closing in</span><b id="dangerV">0%</b></label><div class="bar danger"><i id="dangerBar"></i></div></div>
+          </div>
+          <div class="play-row">
+            <button class="hold" id="hold" type="button">Hold to boost · or hold Shift / Space</button>
+            <button class="btn btn-ghost" id="restart" type="button">Restart</button>
+          </div>
+          <div class="toast" id="toast" role="status" aria-live="polite">Press and hold to set sail.</div>
+          <p class="tip">A simplified taste of the noise mechanic — the real game adds a spider, a ship and a shark with its own senses.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTROLS -->
+    <section id="controls">
+      <div class="wrap">
+        <div class="head rv">
+          <p class="eyebrow">Controls</p>
+          <h2>Keyboard &amp; <span class="italic">mouse</span></h2>
+          <p>Try pressing the keys on your own keyboard — they light up below.</p>
+        </div>
+        <div class="keys rv" id="keys">
+          <div class="key" data-k="w,a,s,d,arrowup,arrowdown,arrowleft,arrowright"><div class="cap">WASD</div><span>Walk / drive the boat</span></div>
+          <div class="key" data-k="e"><div class="cap">E</div><span>Interact, board, climb, collect</span></div>
+          <div class="key" data-k="f"><div class="cap">F · Click</div><span>Attack the spider</span></div>
+          <div class="key" data-k="shift"><div class="cap">Shift</div><span>Sprint / boat boost</span></div>
+          <div class="key" data-k="control"><div class="cap">Ctrl</div><span>Quiet boat speed</span></div>
+          <div class="key" data-k=" "><div class="cap">Space</div><span>Jump</span></div>
+          <div class="key" data-k="v"><div class="cap">V</div><span>Change camera view</span></div>
+          <div class="key" data-k="escape"><div class="cap">Esc</div><span>Pause / resume</span></div>
+        </div>
+        <p class="keys-note">Mouse: look around.</p>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery" style="background: linear-gradient(180deg, transparent, rgba(6,32,44,.6), transparent)">
+      <div class="wrap">
+        <div class="head rv">
+          <p class="eyebrow">Gallery</p>
+          <h2>Inside the <span class="italic">adventure</span></h2>
+        </div>
+        <div class="rv">
+          <div class="stage" id="stage" aria-live="polite">
+            <img class="on" src="img/01_Main_Menu.png" alt="Treasure Escape main menu" />
+            <img src="img/02_Explore_The_Ship.png" alt="Exploring the ship" loading="lazy" />
+            <img src="img/03_Treasure_Below_Deck.png" alt="Jewels and the treasure chest below deck" loading="lazy" />
+            <img src="img/04_Spider_Guardian.png" alt="Facing the spider guardian" loading="lazy" />
+            <div class="cap-bar"><b id="capTitle">Main menu</b><span id="capText">Select START ADVENTURE to begin your expedition.</span></div>
+          </div>
+          <div class="thumbs" id="thumbs" role="tablist">
+            <button role="tab" aria-selected="true" aria-label="Main menu"><img src="img/01_Main_Menu.png" alt="" /></button>
+            <button role="tab" aria-selected="false" aria-label="Exploring the ship"><img src="img/02_Explore_The_Ship.png" alt="" loading="lazy" /></button>
+            <button role="tab" aria-selected="false" aria-label="Treasure below deck"><img src="img/03_Treasure_Below_Deck.png" alt="" loading="lazy" /></button>
+            <button role="tab" aria-selected="false" aria-label="Spider guardian"><img src="img/04_Spider_Guardian.png" alt="" loading="lazy" /></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TECH -->
+    <section id="tech">
+      <div class="wrap">
+        <div class="head rv">
+          <p class="eyebrow">Behind the scenes</p>
+          <h2>Built with <span class="italic">three tools</span></h2>
+        </div>
+        <div class="tech">
+          <article class="tcard rv"><small>Programming language</small><h3>C#</h3><p>Scripts for player movement, boat controls, enemy behaviour, missions, health and menus.</p></article>
+          <article class="tcard rv"><small>Game engine</small><h3>Unity</h3><p>Brings scenes and scripts together, handles collisions, lighting and audio, and builds the standalone Windows game.</p></article>
+          <article class="tcard rv"><small>3D modelling</small><h3>Blender</h3><p>The ship, the island and the boat — modelled in Blender and brought into Unity.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOWNLOAD -->
+    <section id="download">
+      <div class="wrap">
+        <div class="dl rv">
+          <p class="eyebrow">Ready to sail?</p>
+          <h2>Download <span class="italic">Treasure Escape</span></h2>
+          <ol>
+            <li><b>Download</b> TreasureEscape_Windows.zip</li>
+            <li>Right-click and choose <b>Extract All</b></li>
+            <li>Open the folder and run <b>TreasureEscape.exe</b></li>
+            <li>Select <b>START ADVENTURE</b></li>
+          </ol>
+          <div style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:center">
+            <a class="btn btn-gold" href="https://github.com/RitalALghates/TreasureEscape-Windows-Game/releases/latest/download/TreasureEscape_Windows.zip">Download for Windows</a>
+            <a class="btn btn-ghost" href="https://github.com/RitalALghates/TreasureEscape-Windows-Game">View on GitHub</a>
+          </div>
+          <p class="fine">64-bit Windows with keyboard and mouse · about 82 MB · single player · English interface · progress is not saved between sessions. Keep all extracted files together.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      Designed &amp; developed by Rital Alghates ·
+      <a href="../">Back to portfolio</a> ·
+      <a href="https://github.com/RitalALghates/TreasureEscape-Windows-Game">GitHub</a>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* nav + hero parallax */
+      var nav = document.getElementById('nav');
+      var bg = document.getElementById('heroBg');
+      var mx = 0, my = 0;
+      function onScroll() {
+        var y = window.scrollY;
+        nav.classList.toggle('solid', y > 40);
+        if (!reduce && y < window.innerHeight * 1.2) {
+          bg.style.transform = 'translate3d(' + (mx * -14) + 'px,' + (y * 0.25 + my * -10) + 'px,0) scale(1.08)';
+        }
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('pointermove', function (e) {
+        mx = e.clientX / window.innerWidth - 0.5;
+        my = e.clientY / window.innerHeight - 0.5;
+        onScroll();
+      }, { passive: true });
+      onScroll();
+
+      /* reveal */
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+      }, { threshold: 0.15 });
+      document.querySelectorAll('.rv').forEach(function (el) { io.observe(el); });
+
+      /* gallery */
+      var shots = [
+        ['Main menu', 'Select START ADVENTURE to begin your expedition.'],
+        ['Exploring the ship', 'Mooring beside the boarding ladder before you climb aboard.'],
+        ['Treasure below deck', 'Recover the jewels hidden in the chest below deck.'],
+        ['The spider guardian', 'Return upstairs when you hear the warning and land three hits.']
+      ];
+      var imgs = document.querySelectorAll('#stage img');
+      var tabs = document.querySelectorAll('#thumbs button');
+      var cur = 0, timer;
+      function show(i) {
+        cur = i;
+        imgs.forEach(function (im, k) { im.classList.toggle('on', k === i); });
+        tabs.forEach(function (t, k) { t.setAttribute('aria-selected', k === i); });
+        document.getElementById('capTitle').textContent = shots[i][0];
+        document.getElementById('capText').textContent = shots[i][1];
+      }
+      function auto() { clearInterval(timer); if (!reduce) timer = setInterval(function () { show((cur + 1) % shots.length); }, 5000); }
+      tabs.forEach(function (t, i) { t.addEventListener('click', function () { show(i); auto(); }); });
+      auto();
+
+      /* keyboard visualiser */
+      var keyEls = [].slice.call(document.querySelectorAll('#keys .key'));
+      function keyHit(e, on) {
+        var k = e.key.toLowerCase();
+        keyEls.forEach(function (el) {
+          if (el.dataset.k.split(',').indexOf(k) > -1) el.classList.toggle('hit', on);
+        });
+      }
+      window.addEventListener('keydown', function (e) { keyHit(e, true); });
+      window.addEventListener('keyup', function (e) { keyHit(e, false); });
+      var fKey = document.querySelector('#keys [data-k="f"]');
+      window.addEventListener('mousedown', function (e) { if (e.target.closest && e.target.closest('#keys')) fKey.classList.add('hit'); });
+      window.addEventListener('mouseup', function () { fKey.classList.remove('hit'); });
+
+      /* sneak-past-the-shark mini game */
+      var sea = document.getElementById('sea');
+      var boat = document.getElementById('boat');
+      var shark = document.getElementById('shark');
+      var splash = document.getElementById('splash');
+      var holdBtn = document.getElementById('hold');
+      var toast = document.getElementById('toast');
+      var bars = { noise: [document.getElementById('noiseBar'), document.getElementById('noiseV')], prog: [document.getElementById('progBar'), document.getElementById('progV')], danger: [document.getElementById('dangerBar'), document.getElementById('dangerV')] };
+
+      var S = { running: false, over: false, boost: false, p: 0, noise: 0, shark: -0.22, last: 0, raf: 0 };
+      var START = 0.03, END = 0.84; /* boat travel range as fraction of sea width */
+
+      function setBar(k, v) {
+        var pct = Math.max(0, Math.min(100, Math.round(v * 100)));
+        bars[k][0].style.width = pct + '%';
+        bars[k][1].textContent = pct + '%';
+      }
+      function layout() {
+        var w = sea.clientWidth;
+        var bx = (START + (END - START) * S.p) * w;
+        var sx = (START + (END - START) * S.shark) * w;
+        boat.style.left = bx + 'px';
+        shark.style.left = Math.max(-80, sx) + 'px';
+        splash.style.left = bx - 12 + 'px';
+      }
+      function reset() {
+        cancelAnimationFrame(S.raf);
+        S.running = false; S.over = false; S.boost = false; S.p = 0; S.noise = 0; S.shark = -0.22; S.last = 0;
+        holdBtn.classList.remove('active'); splash.classList.remove('on');
+        setBar('noise', 0); setBar('prog', 0); setBar('danger', 0);
+        layout();
+        toast.textContent = 'Press and hold to set sail.';
+      }
+      function finish(win) {
+        S.over = true; S.running = false; S.boost = false;
+        holdBtn.classList.remove('active'); splash.classList.remove('on');
+        toast.textContent = win ? 'You made it home with the treasure!' : 'The shark caught you… try gliding quietly.';
+      }
+      function tick(t) {
+        if (!S.last) S.last = t;
+        var dt = Math.min(0.05, (t - S.last) / 1000);
+        S.last = t;
+        var targetNoise = S.boost ? 1 : 0.12;
+        S.noise += (targetNoise - S.noise) * Math.min(1, dt * (S.boost ? 3.2 : 1.6));
+        var speed = S.boost ? 0.085 : 0.034;
+        S.p = Math.min(1, S.p + speed * dt);
+        /* shark homes in based on noise; sniffs around when quiet */
+        var shSpeed = 0.016 + S.noise * 0.115;
+        S.shark += shSpeed * dt;
+        var gap = Math.max(0, S.p - S.shark);
+        var danger = 1 - Math.min(1, gap / 0.34);
+        setBar('noise', S.noise); setBar('prog', S.p); setBar('danger', danger);
+        layout();
+        if (S.p >= 1) return finish(true);
+        if (S.shark >= S.p - 0.015) return finish(false);
+        toast.textContent = S.boost ? 'Loud! The shark heard you…' : 'Gliding quietly…';
+        S.raf = requestAnimationFrame(tick);
+      }
+      function setBoost(on) {
+        if (S.over) return;
+        S.boost = on;
+        holdBtn.classList.toggle('active', on);
+        splash.classList.toggle('on', on);
+        if (!S.running) { S.running = true; S.last = 0; S.raf = requestAnimationFrame(tick); }
+      }
+      holdBtn.addEventListener('pointerdown', function (e) { e.preventDefault(); setBoost(true); });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) { holdBtn.addEventListener(ev, function () { if (S.running) setBoost(false); }); });
+      window.addEventListener('keydown', function (e) {
+        if (e.key !== 'Shift' && e.key !== ' ') return;
+        var r = sea.getBoundingClientRect();
+        var inView = r.top < window.innerHeight * 0.75 && r.bottom > window.innerHeight * 0.25;
+        if (!inView) return;
+        if (e.key === ' ') e.preventDefault();
+        if (!e.repeat) setBoost(true);
+      });
+      window.addEventListener('keyup', function (e) { if ((e.key === 'Shift' || e.key === ' ') && S.running) setBoost(false); });
+      document.getElementById('restart').addEventListener('click', reset);
+      window.addEventListener('resize', layout);
+      reset();
+    })();
+  </script>
+</body>
+</html>

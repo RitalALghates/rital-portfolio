@@ -85,9 +85,9 @@ export const projects = [
     description:
       'A single-player 3D adventure: sail to an abandoned ship, face the spider guardian and sneak home — but the louder you are, the closer the shark gets. Built in Unity and C# with Blender models.',
     tags: ['Unity', 'C#', 'Blender', 'Game AI'],
-    demo: `${GH}/TreasureEscape-Windows-Game/releases/latest`,
+    demo: './treasure-escape/',
     repo: `${GH}/TreasureEscape-Windows-Game`,
-    demoLabel: 'Play the game',
+    demoLabel: 'Live demo',
   },
 ]
 
